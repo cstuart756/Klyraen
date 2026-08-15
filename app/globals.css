@@ -186,6 +186,177 @@ h1 {
   font-size: clamp(3rem, 7vw, 6rem);
 }
 
+.studio-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  gap: 24px;
+  max-width: 1120px;
+  margin: 12vh auto 0;
+}
+
+.studio-create-card {
+  max-width: none;
+  margin: 0;
+}
+
+.studio-create-card form {
+  margin-top: 48px;
+}
+
+.studio-create-card label {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--foreground);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.studio-create-card textarea {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--line);
+  background: rgba(244, 240, 232, 0.05);
+  padding: 18px;
+  color: var(--foreground);
+  font: inherit;
+  line-height: 1.5;
+  outline: none;
+}
+
+.studio-create-card textarea:focus {
+  border-color: var(--acid);
+}
+
+.prompt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.prompt-footer > span {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+button.primary-action {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+button.primary-action:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.form-error {
+  margin-top: 16px;
+  color: var(--coral);
+  font-size: 0.85rem;
+}
+
+.result-card {
+  max-width: none;
+  margin: 0;
+}
+
+.empty-result {
+  display: grid;
+  min-height: 360px;
+  place-items: center;
+  align-content: center;
+  gap: 18px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.result-mark {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border: 1px solid var(--line);
+  color: var(--acid);
+  font-size: 1.5rem;
+}
+
+.generation-result {
+  margin-top: 56px;
+}
+
+.status-chip {
+  display: inline-block;
+  padding: 7px 9px;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.status-processing,
+.status-queued {
+  background: rgba(239, 143, 114, 0.12);
+  color: var(--coral);
+}
+
+.status-completed {
+  background: rgba(216, 243, 107, 0.14);
+  color: var(--acid);
+}
+
+.status-button {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.status-button:hover {
+  background: rgba(216, 243, 107, 0.24);
+}
+
+.generation-result h2 {
+  margin: 24px 0;
+  color: var(--foreground);
+  font-size: 1.45rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.progress-line {
+  height: 2px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.progress-line::after {
+  display: block;
+  width: 42%;
+  height: 100%;
+  background: var(--acid);
+  content: "";
+  animation: progress 1.2s ease-in-out infinite alternate;
+}
+
+.demo-audio {
+  padding: 16px;
+  border-left: 2px solid var(--acid);
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+audio {
+  width: 100%;
+}
+
+@keyframes progress {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(240%); }
+}
+
 .studio-placeholder {
   margin-top: 32px;
   padding: 18px;
@@ -222,5 +393,10 @@ h1 {
   .beta-grid {
     grid-template-columns: 1fr;
     gap: 48px;
+  }
+
+  .studio-layout {
+    grid-template-columns: 1fr;
+    margin-top: 10vh;
   }
 }
