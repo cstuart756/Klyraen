@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BetaTesterStatus {
+  INVITED
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum FeedbackType {
+  GENERAL
+  GENERATION
+  BUG
+  FEATURE_REQUEST
+}
+
+enum GenerationStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id               String           @id @default(cuid())
+  clerkUserId      String           @unique
+  email            String           @unique
+  name             String?
+  imageUrl         String?
+  betaTesterStatus BetaTesterStatus?
+  betaJoinedAt     DateTime?
+  betaCompletedAt  DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  generations      Generation[]
+  feedback         BetaFeedback[]
+  events           ProductEvent[]
+
+  @@index([betaTesterStatus])
+}
+
+model Generation {
+  id                    String           @id @default(cuid())
+  userId                String
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status                GenerationStatus @default(QUEUED)
+  prompt                String
+  provider              String?
+  model                 String?
+  providerCostCredits   Float?
+  estimatedCostPence    Int?
+  audioStorageKey       String?
+  audioBytes            Int?
+  queueStartedAt        DateTime         @default(now())
+  processingStartedAt   DateTime?
+  completedAt           DateTime?
+  attemptCount          Int              @default(0)
+  errorMessage          String?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  feedback              BetaFeedback[]
+  events                ProductEvent[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model BetaFeedback {
+  id                    String       @id @default(cuid())
+  userId                String
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type                  FeedbackType
+  generationId          String?
+  generation            Generation?  @relation(fields: [generationId], references: [id], onDelete: SetNull)
+  rating                Int?
+  musicQualityRating    Int?
+  promptAccuracyRating Int?
+  easeOfUseRating       Int?
+  wouldUseAgain         Boolean?
+  message               String?
+  createdAt             DateTime     @default(now())
+
+  @@index([userId])
+  @@index([generationId])
+  @@index([createdAt])
+}
+
+model ProductEvent {
+  id           String      @id @default(cuid())
+  userId       String?
+  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event        String
+  generationId String?
+  generation   Generation? @relation(fields: [generationId], references: [id], onDelete: SetNull)
+  metadata     Json?
+  createdAt    DateTime    @default(now())
+
+  @@index([userId])
+  @@index([event])
+  @@index([createdAt])
+}
+
+model ModelBenchmark {
+  id                  String   @id @default(cuid())
+  name                String
+  provider            String
+  model               String
+  prompt              String
+  category            String
+  generationId        String?
+  promptAdherence     Int?
+  composition         Int?
+  audioQuality        Int?
+  instrumentQuality   Int?
+  structure           Int?
+  commercialUsability Int?
+  notes               String?
+  createdAt           DateTime @default(now())
+
+  @@index([provider, model])
+}
