@@ -23,7 +23,12 @@ export async function POST(request: Request) {
     await getGenerationQueue().add("generate", { generationId: generation.id });
 
     return Response.json({ generationId: generation.id, status: generation.status }, { status: 202 });
-  } catch {
-    return Response.json({ error: "Unable to queue generation." }, { status: 500 });
+  } catch (error) {
+    console.error("Generation queue failed:", error);
+    const detail =
+      process.env.NODE_ENV === "development" && error instanceof Error
+        ? error.message
+        : "Unable to queue generation.";
+    return Response.json({ error: detail }, { status: 500 });
   }
 }

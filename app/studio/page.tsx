@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 
 type Generation = {
   id: string;
@@ -127,7 +128,16 @@ export default function StudioPage() {
               </button>
             </div>
           </form>
-          {error && <p className="form-error">{error}</p>}
+          {error && (
+            <p className="form-error">
+              {error}
+              {error === "Authentication is required." && (
+                <Link className="inline-link" href="/sign-in">
+                  Sign in to continue.
+                </Link>
+              )}
+            </p>
+          )}
         </section>
 
         <aside className="studio-card result-card">
