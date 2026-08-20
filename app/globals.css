@@ -5,10 +5,10 @@
   --foreground: #f1f7f4;
   --muted: #8b9a9d;
   --line: rgba(137, 198, 198, 0.2);
-  --acid: #d7ff48;
-  --cyan: #58e8dc;
-  --coral: #ff806b;
-  --panel: rgba(12, 22, 27, 0.82);
+  --acid: #9d5cff;
+  --cyan: #00d9ff;
+  --coral: #ff3d98;
+  --panel: rgba(12, 13, 38, 0.86);
 }
 
 @theme inline {
@@ -384,8 +384,8 @@ audio {
   background-image:
     linear-gradient(rgba(88, 232, 220, 0.045) 1px, transparent 1px),
     linear-gradient(90deg, rgba(88, 232, 220, 0.045) 1px, transparent 1px),
-    radial-gradient(circle at 80% 14%, rgba(215, 255, 72, 0.12), transparent 25%),
-    radial-gradient(circle at 12% 84%, rgba(88, 232, 220, 0.08), transparent 22%);
+    radial-gradient(circle at 80% 14%, rgba(157, 92, 255, 0.2), transparent 25%),
+    radial-gradient(circle at 12% 84%, rgba(0, 217, 255, 0.1), transparent 22%);
   background-size: 48px 48px, 48px 48px, auto, auto;
 }
 
@@ -412,6 +412,42 @@ audio {
   justify-content: space-between;
   max-width: 1240px;
   margin: 0 auto;
+}
+
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid var(--cyan);
+  border-radius: 9px;
+  color: var(--cyan);
+  font-size: 1.15rem;
+  font-weight: 700;
+  box-shadow: 0 0 18px rgba(0, 217, 255, 0.3);
+}
+
+.brand-lockup div {
+  display: grid;
+  gap: 2px;
+}
+
+.brand-lockup strong {
+  color: var(--foreground);
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+}
+
+.brand-lockup div span {
+  color: var(--muted);
+  font-size: 0.48rem;
+  letter-spacing: 0.2em;
 }
 
 .live-indicator {
@@ -471,12 +507,29 @@ audio {
   font-weight: 500;
 }
 
+.genre-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.genre-row span {
+  padding: 7px 10px;
+  border: 1px solid rgba(157, 92, 255, 0.45);
+  border-radius: 999px;
+  color: #c7aaff;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+}
+
 .signal-card {
   min-height: 480px;
   padding: 18px;
-  border: 1px solid rgba(88, 232, 220, 0.35);
-  background: linear-gradient(145deg, rgba(17, 38, 42, 0.82), var(--panel));
-  box-shadow: 0 0 70px rgba(88, 232, 220, 0.08), inset 0 0 40px rgba(88, 232, 220, 0.035);
+  border: 1px solid rgba(157, 92, 255, 0.42);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(24, 18, 63, 0.88), var(--panel));
+  box-shadow: 0 0 70px rgba(157, 92, 255, 0.14), inset 0 0 40px rgba(0, 217, 255, 0.035);
 }
 
 .signal-card-top,
@@ -522,7 +575,7 @@ audio {
 }
 
 .orbit-one { inset: 14px 0; }
-.orbit-two { inset: 0 18px; transform: rotate(62deg); border-color: rgba(215, 255, 72, 0.3); }
+.orbit-two { inset: 0 18px; transform: rotate(62deg); border-color: rgba(255, 61, 152, 0.42); }
 
 .waveform {
   display: flex;

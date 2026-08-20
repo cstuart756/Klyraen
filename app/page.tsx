@@ -4,7 +4,14 @@ export default function Home() {
   return (
     <main className="landing-shell">
       <header className="site-header">
-        <div className="beta-kicker">KLYRAEN / PRIVATE BETA</div>
+        <div className="brand-lockup">
+          <span className="brand-mark">K</span>
+          <div>
+            <strong>KLYRAEN</strong>
+            <span>AI MUSIC STUDIO</span>
+          </div>
+        </div>
+        <div className="beta-kicker">PRIVATE BETA / WAVE 01</div>
         <span className="live-indicator"><i /> SYSTEM ONLINE</span>
       </header>
       <div className="landing-grid">
@@ -15,6 +22,11 @@ export default function Home() {
             Shape raw emotion into sound with a private AI music studio built
             for the space between impulse and intention.
           </p>
+          <div className="genre-row" aria-label="Supported music directions">
+            <span>DRUM &amp; BASS</span>
+            <span>TECHNO</span>
+            <span>AMBIENT</span>
+          </div>
           <div className="landing-actions">
             <Link className="primary-action" href="/beta">
               Enter private beta <span aria-hidden="true">-&gt;</span>
