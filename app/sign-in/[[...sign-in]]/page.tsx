@@ -1,7 +1,8 @@
 import { SignIn } from "@clerk/nextjs";
+import { isValidClerkPublishableKey } from "@/lib/clerk-config";
 
 export default function SignInPage() {
-  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+  if (!isValidClerkPublishableKey(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY)) {
     return (
       <main className="studio-shell">
         <section className="studio-card studio-create-card">
