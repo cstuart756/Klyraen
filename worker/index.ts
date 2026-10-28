@@ -3,30 +3,29 @@ import { Worker } from "bullmq";
 import IORedis from "ioredis";
 import prisma from "../lib/prisma";
 
+// Explicitly define the queue name
+const QUEUE_NAME = "generation-queue"; 
+
 const connection = new IORedis(process.env.REDIS_URL || "redis://localhost:6379", {
   maxRetriesPerRequest: null,
 });
 
 const worker = new Worker(
-  "generation-queue",
+  QUEUE_NAME, // Pass the constant variable here
   async (job) => {
     const { generationId } = job.data;
     console.log(`Processing generation: ${generationId}`);
 
     try {
-      // 1. Update status to PROCESSING
       await prisma.generation.update({
         where: { id: generationId },
         data: { status: "PROCESSING" },
       });
 
-      // 2. Call the AI Provider (Mocked for 5 seconds)
+      // Simulate AI generation time
       await new Promise((resolve) => setTimeout(resolve, 5000));
-
-      // 3. Simulate saving audio file
       const mockStorageKey = `audio-${generationId}`;
 
-      // 4. Update status to COMPLETED
       await prisma.generation.update({
         where: { id: generationId },
         data: {
@@ -48,4 +47,4 @@ const worker = new Worker(
   { connection }
 );
 
-console.log("Generation Worker is running...");
+console.log(`Generation Worker is running and listening to [${QUEUE_NAME}]...`);
