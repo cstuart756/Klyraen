@@ -1,19 +1,25 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <main className="landing-shell">
       <header className="site-header">
         <div className="brand-lockup">
-          <span className="brand-mark">K</span>
-          <div>
-            <strong>KLYRAEN</strong>
-            <span>AI MUSIC STUDIO</span>
-          </div>
+          {/* Uses your actual logo image */}
+          <Image 
+            src="/images/logo.png" 
+            alt="Klyraen Logo" 
+            width={180} 
+            height={40} 
+            className="brand-logo-img"
+            priority
+          />
         </div>
         <div className="beta-kicker">PRIVATE BETA / WAVE 01</div>
         <span className="live-indicator"><i /> SYSTEM ONLINE</span>
       </header>
+      
       <div className="landing-grid">
         <section className="landing-content">
           <p className="eyebrow">A studio for unfinished ideas</p>
@@ -40,24 +46,25 @@ export default function Home() {
             <span><b>02</b> PRIVATE BY DEFAULT</span>
           </div>
         </section>
-        <aside className="signal-card" aria-label="Klyraen audio signal preview">
-          <div className="signal-card-top">
-            <span>LIVE / SIGNAL 001</span>
-            <span>00:30</span>
-          </div>
-          <div className="signal-orbit">
-            <div className="signal-core">K</div>
-            <div className="orbit orbit-one" />
-            <div className="orbit orbit-two" />
-          </div>
-          <div className="waveform" aria-hidden="true">
-            {[28, 48, 74, 40, 92, 58, 36, 80, 52, 96, 42, 66, 30, 76, 48, 86, 34, 62, 44, 72].map((height, index) => (
-              <i key={index} style={{ height: `${height}%` }} />
-            ))}
-          </div>
-          <div className="signal-card-bottom">
-            <span>ATMOSPHERIC / 124 BPM</span>
-            <span className="signal-dot" />
+
+        {/* Uses your actual background image */}
+        <aside className="signal-card-image-container" aria-label="Klyraen audio signal preview">
+          <Image 
+            src="/images/hero-bg.jpg" 
+            alt="AI Music Generation Preview" 
+            fill
+            className="signal-image"
+            priority
+          />
+          <div className="signal-overlay">
+            <div className="signal-card-top">
+              <span>LIVE / SIGNAL 001</span>
+              <span>00:30</span>
+            </div>
+            <div className="signal-card-bottom">
+              <span>ATMOSPHERIC / 124 BPM</span>
+              <span className="signal-dot" />
+            </div>
           </div>
         </aside>
       </div>
