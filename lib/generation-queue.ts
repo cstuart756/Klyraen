@@ -1,16 +1,15 @@
 import { Queue } from "bullmq";
-import { getRedisConnection } from "@/lib/redis";
+import IORedis from "ioredis";
 
-export const generationQueueName = "music-generation";
+const connection = new IORedis(process.env.REDIS_URL || "redis://localhost:6379", {
+  maxRetriesPerRequest: null,
+});
+
+let generationQueue: Queue | null = null;
 
 export function getGenerationQueue() {
-  return new Queue(generationQueueName, {
-    connection: getRedisConnection(),
-    defaultJobOptions: {
-      attempts: 3,
-      backoff: { type: "exponential", delay: 5000 },
-      removeOnComplete: 100,
-      removeOnFail: 1000,
-    },
-  });
+  if (!generationQueue) {
+    generationQueue = new Queue("generation-queue", { connection });
+  }
+  return generationQueue;
 }
