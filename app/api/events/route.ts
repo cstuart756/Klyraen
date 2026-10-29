@@ -1,43 +1,32 @@
-import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/current-user";
+import { NextResponse } from "next/server";
+import { requireTenantId } from "@/lib/db/tenant";
+import { prisma } from "@/lib/prisma";
 
-const allowedEvents = new Set([
-  "CREATE_PAGE_VIEW",
-  "PROMPT_STARTED",
-  "STYLE_SELECTED",
-  "GENERATE_CLICKED",
-  "GENERATION_QUEUED",
-  "GENERATION_COMPLETED",
-  "TRACK_PLAYED",
-  "TRACK_FAVOURITED",
-  "FEEDBACK_SUBMITTED",
-  "SECOND_GENERATION_STARTED",
-]);
-
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const user = await getCurrentUser();
-    const body = await request.json();
+    // 1. Enforce tenant isolation (throws 401/403 if invalid)
+    const tenantId = await requireTenantId();
+    
+    const body = await req.json();
+    const { userId, event, generationId, metadata } = body;
 
-    if (typeof body.event !== "string" || !allowedEvents.has(body.event)) {
-      return Response.json({ error: "Invalid event." }, { status: 400 });
-    }
-
-    await prisma.productEvent.create({
+    // 2. Create the event with the required tenantId
+    const newEvent = await prisma.productEvent.create({
       data: {
-        userId: user.id,
-        event: body.event,
-        generationId:
-          typeof body.generationId === "string" ? body.generationId : undefined,
-        metadata:
-          body.metadata && typeof body.metadata === "object"
-            ? body.metadata
-            : undefined,
+        tenantId,
+        userId,
+        event,
+        generationId: generationId || null,
+        metadata: metadata || {},
       },
     });
 
-    return Response.json({ recorded: true });
-  } catch {
-    return Response.json({ error: "Unable to record event." }, { status: 500 });
+    return NextResponse.json(newEvent, { status: 201 });
+  } catch (error) {
+    // Handle our custom Response errors from requireTenantId
+    if (error instanceof Response) return error;
+    
+    console.error("Event Creation Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

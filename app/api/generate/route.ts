@@ -1,34 +1,59 @@
-import { getCurrentUser } from "@/lib/current-user";
-import { getGenerationQueue } from "@/lib/generation-queue";
-import prisma from "@/lib/prisma";
+import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { requireTenantId } from "@/lib/db/tenant";
+import { prisma } from "@/lib/prisma";
+import { getGenerationQueue } from "@/lib/queue"; // <--- Updated import
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const user = await getCurrentUser();
-    const body = await request.json();
-    const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+    // 1. Lock down the route (throws 401/403 if unauthorized or no workspace)
+    const tenantId = await requireTenantId();
+    
+    // 2. Get the current user's Clerk ID
+    const { userId: clerkId } = await auth();
+    
+    // 3. Find the user in our database
+    const user = await prisma.user.findUnique({
+      where: { clerkId: clerkId! },
+    });
 
-    if (prompt.length < 3 || prompt.length > 2000) {
-      return Response.json({ error: "Prompt must be between 3 and 2000 characters." }, { status: 400 });
+    if (!user) {
+      return NextResponse.json({ error: "User not found in database" }, { status: 404 });
     }
 
+    // 4. Parse the request body
+    const body = await req.json();
+    const { prompt, style } = body;
+
+    if (!prompt || prompt.length < 10) {
+      return NextResponse.json({ error: "Prompt must be at least 10 characters" }, { status: 400 });
+    }
+
+    // 5. Save the generation to Postgres
     const generation = await prisma.generation.create({
       data: {
+        tenantId: tenantId,
         userId: user.id,
-        prompt,
-        provider: process.env.MUSIC_GENERATION_PROVIDER ?? "stable-audio",
+        prompt: prompt,
+        status: "QUEUED", // Will be picked up by the worker
       },
     });
 
-    await getGenerationQueue().add("generate", { generationId: generation.id });
+    // 6. Add the job to the Redis queue (Lazy loaded)
+    const queue = getGenerationQueue();
+    await queue.add("generate-song", {
+      generationId: generation.id,
+    });
 
-    return Response.json({ generationId: generation.id, status: generation.status }, { status: 202 });
+    // 7. Return the new generation record to the frontend
+    return NextResponse.json(generation, { status: 201 });
+
   } catch (error) {
-    console.error("Generation queue failed:", error);
-    const detail =
-      process.env.NODE_ENV === "development" && error instanceof Error
-        ? error.message
-        : "Unable to queue generation.";
-    return Response.json({ error: detail }, { status: 500 });
+    if (error instanceof Response) {
+      return error;
+    }
+    
+    console.error("Generation API Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
