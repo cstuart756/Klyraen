@@ -6,17 +6,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0B0C10] text-white overflow-hidden selection:bg-[#8B5CF6]/30 relative">
       
-      {/* THE CUSTOM GIRL WITH HEADPHONES WATERMARK */}
+      {/* BACKGROUND IMAGE */}
       <div 
-        className="absolute inset-0 z-0 opacity-40 mix-blend-screen bg-cover bg-[center_top_20%] bg-no-repeat"
-        style={{ 
-          // Points to the local file in your public folder
-          backgroundImage: "url('/cyberpunk-girl.jpg.png')" 
-        }}
+        className="absolute inset-0 z-0 opacity-50 bg-cover bg-[center_top_20%] bg-no-repeat"
+        style={{ backgroundImage: "url('/cyberpunk-girl.jpg')" }}
       />
       
-      {/* Dark Gradient Overlay (makes text readable) */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-t from-[#0B0C10] via-[#0B0C10]/80 to-transparent" />
+      {/* Dark Gradient Overlay */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-t from-[#0B0C10] via-[#0B0C10]/70 to-transparent" />
       
       {/* Grid Background */}
       <div className="absolute inset-0 cyber-grid opacity-20 pointer-events-none z-0" />
@@ -51,7 +48,7 @@ export default function Home() {
       {/* Hero Section */}
       <main className="relative pt-48 pb-24 px-6 z-10">
         <div className="max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 border border-white/20 mb-8 backdrop-blur-sm">
             <Sparkles className="w-4 h-4 text-[#8B5CF6]" />
             <span className="text-sm font-medium text-gray-300">The future of music creation is here</span>
           </div>
@@ -61,7 +58,7 @@ export default function Home() {
             <span className="text-neon-gradient drop-shadow-[0_0_30px_rgba(236,72,153,0.5)]">Evolve.</span>
           </h1>
           
-          <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto drop-shadow-lg">
+          <p className="text-xl text-gray-200 mb-12 max-w-2xl mx-auto drop-shadow-lg">
             Turn your ideas into powerful music with Klyraen's neural audio engine. Generate vocals, lyrics, and full arrangements in seconds.
           </p>
 
@@ -83,7 +80,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 py-12 text-center text-gray-500 relative z-10 bg-[#0B0C10]">
+      <footer className="border-t border-white/10 py-12 text-center text-gray-400 relative z-10 bg-[#0B0C10]">
         <div className="flex items-center justify-center gap-2 mb-4">
           <Zap className="w-5 h-5 text-[#8B5CF6]" />
           <span className="font-bold font-sora tracking-widest text-white">KLYRAEN</span>

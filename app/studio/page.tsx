@@ -82,7 +82,6 @@ export default function StudioPage() {
       <main className="flex-1 overflow-y-auto p-8 lg:p-12 relative scroll-smooth z-10">
         <div className="max-w-5xl mx-auto pb-24">
           
-          {/* Header */}
           <div className="flex justify-between items-center mb-10">
             <div>
               <h1 className="text-3xl font-bold font-sora tracking-tight">Welcome back, Creator.</h1>
@@ -94,19 +93,15 @@ export default function StudioPage() {
             </div>
           </div>
 
-          {/* Cyberpunk Hero Section WITH CUSTOM WATERMARK */}
+          {/* Cyberpunk Hero Section */}
           <div className="relative w-full h-[300px] rounded-3xl overflow-hidden mb-8 border border-white/10 bg-[#111827] flex items-center justify-between p-10 shadow-[0_0_40px_rgba(139,92,246,0.15)] group">
             
-            {/* THE CUSTOM GIRL WITH HEADPHONES WATERMARK */}
+            {/* WATERMARK IMAGE */}
             <div 
-              className="absolute inset-0 z-0 opacity-40 mix-blend-screen bg-cover bg-[center_top_20%] bg-no-repeat"
-              style={{ 
-                // Points to the local file in your public folder
-                backgroundImage: "url('/cyberpunk-girl.jpg.png')" 
-              }}
+              className="absolute inset-0 z-0 opacity-50 bg-cover bg-[center_top_20%] bg-no-repeat"
+              style={{ backgroundImage: "url('/cyberpunk-girl.jpg')" }}
             />
             
-            {/* Dark Gradient Overlay */}
             <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#0B0C10] via-[#0B0C10]/80 to-transparent"></div>
             <div className="absolute inset-0 cyber-grid opacity-30 z-0"></div>
 
@@ -123,7 +118,6 @@ export default function StudioPage() {
               </p>
             </div>
 
-            {/* The Coded Visualizer Graphic */}
             <div className="relative z-10 hidden md:flex items-center gap-8 mr-4">
               <div className="flex items-end gap-1.5 h-24">
                 {[30, 60, 100, 40, 80, 50, 90, 20, 70, 45, 85].map((h, i) => (
@@ -138,7 +132,6 @@ export default function StudioPage() {
             </div>
           </div>
 
-          {/* Creation Card */}
           <div className="glass-panel p-6 md:p-8 rounded-3xl mb-12 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)]">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[#8B5CF6]/10 blur-[80px] pointer-events-none" />
 
@@ -169,7 +162,6 @@ export default function StudioPage() {
               </button>
             </div>
 
-            {/* Coded Genre Selector */}
             <div className="mt-8">
               <p className="text-sm text-gray-400 mb-4 font-medium">Choose a style</p>
               <div className="flex flex-wrap gap-3">
@@ -198,7 +190,6 @@ export default function StudioPage() {
             </div>
           )}
 
-          {/* Recent Creations */}
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold font-sora">Recent Creations</h2>
@@ -236,7 +227,6 @@ export default function StudioPage() {
               </div>
             )}
 
-            {/* Mock Past Creations - Styled like the mockup audio player */}
             <div className="space-y-3">
               {[
                 { title: "Neon Rush", genre: "Drum & Bass", bpm: "174 BPM", length: "3:28" },
