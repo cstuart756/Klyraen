@@ -1,25 +1,45 @@
-import { getCurrentUser } from "@/lib/current-user";
-import { getAudioUrl } from "@/lib/storage";
-import prisma from "@/lib/prisma";
+import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
+import { requireTenantId } from "@/lib/db/tenant";
 
 export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  req: Request,
+  context: { params: Promise<{ id: string }> } // <--- Next.js 15+ signature
 ) {
   try {
-    const user = await getCurrentUser();
-    const { id } = await params;
-    const generation = await prisma.generation.findFirst({
-      where: { id, userId: user.id, status: "COMPLETED" },
-      select: { audioStorageKey: true },
+    const { id } = await context.params; // <--- Await the params
+    const tenantId = await requireTenantId();
+    const { userId: clerkId } = await auth();
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: clerkId! },
     });
 
-    if (!generation?.audioStorageKey) {
-      return Response.json({ error: "Audio is not ready." }, { status: 404 });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return Response.redirect(await getAudioUrl(generation.audioStorageKey));
-  } catch {
-    return Response.json({ error: "Unable to load audio." }, { status: 500 });
+    const generation = await prisma.generation.findFirst({
+      where: { 
+        id: id, // <--- Use the awaited id
+        userId: user.id, 
+        status: "COMPLETED",
+        tenantId: tenantId
+      },
+    });
+
+    if (!generation || !generation.audioStorageKey) {
+      return NextResponse.json({ error: "Audio not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ 
+      url: `https://mock-audio-storage.klyraen.com/${generation.audioStorageKey}.mp3` 
+    });
+    
+  } catch (error) {
+    if (error instanceof Response) return error;
+    console.error("Fetch Audio Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

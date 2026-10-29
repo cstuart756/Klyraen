@@ -1,32 +1,44 @@
-import { getCurrentUser } from "@/lib/current-user";
-import prisma from "@/lib/prisma";
+import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
+import { requireTenantId } from "@/lib/db/tenant";
 
 export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  req: Request,
+  context: { params: Promise<{ id: string }> } // <--- Next.js 15+ signature
 ) {
   try {
-    const user = await getCurrentUser();
-    const { id } = await params;
+    const { id } = await context.params; // <--- Await the params
+    const tenantId = await requireTenantId();
+    const { userId: clerkId } = await auth();
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: clerkId! },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const generation = await prisma.generation.findFirst({
-      where: { id, userId: user.id },
-      select: {
-        id: true,
-        prompt: true,
-        status: true,
-        model: true,
-        errorMessage: true,
-        completedAt: true,
-        audioStorageKey: true,
+      where: { 
+        id: id, // <--- Use the awaited id
+        userId: user.id,
+        tenantId: tenantId 
+      },
+      include: {
+        song: true,
       },
     });
 
     if (!generation) {
-      return Response.json({ error: "Generation not found." }, { status: 404 });
+      return NextResponse.json({ error: "Generation not found" }, { status: 404 });
     }
 
-    return Response.json({ generation });
-  } catch {
-    return Response.json({ error: "Unable to load generation." }, { status: 500 });
+    return NextResponse.json(generation);
+  } catch (error) {
+    if (error instanceof Response) return error;
+    console.error("Fetch Generation Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -1,47 +1,46 @@
-import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/current-user";
+import { NextResponse } from "next/server";
+import { requireTenantId } from "@/lib/db/tenant";
+import { prisma } from "@/lib/prisma";
 
-const feedbackTypes = new Set([
-  "GENERAL",
-  "GENERATION",
-  "BUG",
-  "FEATURE_REQUEST",
-]);
-
-function rating(value: unknown) {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return undefined;
-  }
-  return Math.min(Math.max(Math.round(value), 1), 5);
-}
-
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const user = await getCurrentUser();
-    const body = await request.json();
-    const type = feedbackTypes.has(body.type) ? body.type : "GENERAL";
+    // 1. Enforce tenant isolation
+    const tenantId = await requireTenantId();
+    
+    const body = await req.json();
+    const { 
+      userId, 
+      type, 
+      generationId, 
+      rating, 
+      musicQualityRating, 
+      promptAccuracyRating, 
+      easeOfUseRating, 
+      wouldUseAgain, 
+      message 
+    } = body;
 
-    const feedback = await prisma.betaFeedback.create({
+    // 2. Create the feedback with the required tenantId
+    const newFeedback = await prisma.betaFeedback.create({
       data: {
-        userId: user.id,
+        tenantId,
+        userId,
         type,
-        generationId:
-          typeof body.generationId === "string" ? body.generationId : undefined,
-        rating: rating(body.rating),
-        musicQualityRating: rating(body.musicQualityRating),
-        promptAccuracyRating: rating(body.promptAccuracyRating),
-        easeOfUseRating: rating(body.easeOfUseRating),
-        wouldUseAgain:
-          typeof body.wouldUseAgain === "boolean" ? body.wouldUseAgain : undefined,
-        message:
-          typeof body.message === "string"
-            ? body.message.trim().slice(0, 5000)
-            : undefined,
+        generationId: generationId || null,
+        rating,
+        musicQualityRating,
+        promptAccuracyRating,
+        easeOfUseRating,
+        wouldUseAgain,
+        message,
       },
     });
 
-    return Response.json({ feedback }, { status: 201 });
-  } catch {
-    return Response.json({ error: "Unable to save feedback." }, { status: 500 });
+    return NextResponse.json(newFeedback, { status: 201 });
+  } catch (error) {
+    if (error instanceof Response) return error;
+    
+    console.error("Feedback Creation Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
