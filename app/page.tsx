@@ -6,12 +6,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0B0C10] text-white overflow-hidden selection:bg-[#8B5CF6]/30 relative">
       
-      {/* THE GIRL WITH HEADPHONES WATERMARK */}
+      {/* THE CUSTOM GIRL WITH HEADPHONES WATERMARK */}
       <div 
-        className="absolute inset-0 z-0 opacity-40 mix-blend-screen bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 z-0 opacity-40 mix-blend-screen bg-cover bg-[center_top_20%] bg-no-repeat"
         style={{ 
-          // Swap this URL with '/girl-headphones.jpg' if you save the image in your public folder
-          backgroundImage: "url('https://images.unsplash.com/photo-1614890089396-6c9e5c413111?q=80&w=2070&auto=format&fit=crop')" 
+          // Points to the local file in your public folder
+          backgroundImage: "url('/cyberpunk-girl.jpg')" 
         }}
       />
       

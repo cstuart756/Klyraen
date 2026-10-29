@@ -94,15 +94,15 @@ export default function StudioPage() {
             </div>
           </div>
 
-          {/* Cyberpunk Hero Section WITH WATERMARK */}
+          {/* Cyberpunk Hero Section WITH CUSTOM WATERMARK */}
           <div className="relative w-full h-[300px] rounded-3xl overflow-hidden mb-8 border border-white/10 bg-[#111827] flex items-center justify-between p-10 shadow-[0_0_40px_rgba(139,92,246,0.15)] group">
             
-            {/* THE GIRL WITH HEADPHONES WATERMARK */}
+            {/* THE CUSTOM GIRL WITH HEADPHONES WATERMARK */}
             <div 
               className="absolute inset-0 z-0 opacity-40 mix-blend-screen bg-cover bg-[center_top_20%] bg-no-repeat"
               style={{ 
-                // Swap this URL with '/girl-headphones.jpg' if you save the image in your public folder
-                backgroundImage: "url('https://images.unsplash.com/photo-1614890089396-6c9e5c413111?q=80&w=2070&auto=format&fit=crop')" 
+                // Points to the local file in your public folder
+                backgroundImage: "url('/cyberpunk-girl.jpg')" 
               }}
             />
             
