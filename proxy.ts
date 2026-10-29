@@ -1,11 +1,11 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
 export default clerkMiddleware(async (auth, req) => {
-  // Use native path matching instead of the deprecated createRouteMatcher
-  const isProtectedRoute = req.nextUrl.pathname.startsWith('/studio') || 
-                           req.nextUrl.pathname.startsWith('/api');
+  // Only protect the UI routes. Let the API routes handle their own 401 JSON responses.
+  const isProtectedPage = req.nextUrl.pathname.startsWith('/studio') || 
+                          req.nextUrl.pathname.startsWith('/dashboard');
 
-  if (isProtectedRoute) {
+  if (isProtectedPage) {
     await auth.protect();
   }
 });

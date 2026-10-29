@@ -5,49 +5,91 @@
 :root {
   --background: #0B0C10;
   --foreground: #FFFFFF;
+  --purple: #8B5CF6;
+  --pink: #EC4899;
+  --cyan: #06B6D4;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  overflow: hidden; /* Prevents double scrollbars */
+  overflow: hidden;
 }
 
-/* Neon Ring Animation */
+/* Hexagon/Grid Background Pattern */
+.cyber-grid {
+  background-image: 
+    linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+}
+
+/* Glassmorphism Panel */
+.glass-panel {
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Neon Glow Text */
+.text-neon-gradient {
+  background: linear-gradient(90deg, #06B6D4, #8B5CF6, #EC4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* The Glowing Audio Ring */
 .neon-ring {
   position: relative;
-  width: 140px;
-  height: 140px;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
-  background: conic-gradient(from 180deg, #8B5CF6, #EC4899, #06B6D4, #8B5CF6);
-  padding: 3px;
-  animation: spin 4s linear infinite;
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+  background: conic-gradient(from 180deg, #06B6D4, #8B5CF6, #EC4899, #06B6D4);
+  padding: 4px;
+  animation: spin 6s linear infinite;
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.4), inset 0 0 20px rgba(236, 72, 153, 0.2);
 }
 
 .neon-ring::before {
   content: "";
   position: absolute;
-  inset: 3px;
+  inset: 4px;
   border-radius: 50%;
   background: #0B0C10;
 }
 
 .neon-ring-inner {
   position: absolute;
-  inset: 8px;
+  inset: 10px;
   border-radius: 50%;
-  background: rgba(139, 92, 246, 0.15);
+  background: rgba(139, 92, 246, 0.1);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* Animated Waveform */
+.waveform-bar {
+  width: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to top, #8B5CF6, #EC4899);
+  animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  0% { transform: scaleY(0.6); opacity: 0.6; }
+  100% { transform: scaleY(1.2); opacity: 1; }
 }
 
 /* Custom Scrollbar */

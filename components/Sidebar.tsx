@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Home, PenTool, Library, FolderOpen, Heart, ListMusic, User, Settings, Zap } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, Show, SignInButton } from "@clerk/nextjs";
 
 export function Sidebar() {
   const links = [
@@ -40,9 +40,25 @@ export function Sidebar() {
           <Settings className="w-5 h-5" />
           <span className="font-medium text-sm">Settings</span>
         </Link>
-        <div className="pt-4 flex items-center gap-3 px-4">
-          <UserButton />
-          <span className="text-sm font-medium text-gray-300">My Account</span>
+        
+        {/* Authentication UI */}
+        <div className="pt-4 border-t border-white/10 mt-2">
+          <Show when="signed-in">
+            <div className="flex items-center gap-3 px-4 py-2">
+              <UserButton appearance={{ elements: { avatarBox: "w-8 h-8" } }} />
+              <span className="text-sm font-medium text-gray-300">My Account</span>
+            </div>
+          </Show>
+          
+          <Show when="signed-out">
+            <div className="px-4">
+              <SignInButton mode="modal">
+                <button className="w-full py-2.5 bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] hover:opacity-90 text-white font-bold rounded-lg transition-all text-sm">
+                  Sign In / Sign Up
+                </button>
+              </SignInButton>
+            </div>
+          </Show>
         </div>
       </div>
     </aside>

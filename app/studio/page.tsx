@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
-import { Play, Sparkles, Music, ChevronRight, Zap, Headphones, Disc, Radio, Mic2 } from "lucide-react";
+import { Play, Sparkles, Music, ChevronRight, Zap, Headphones, Disc, Radio, Mic2, Heart, MoreHorizontal } from "lucide-react";
 
 type GenerationStatus = "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 
@@ -16,17 +16,17 @@ interface Generation {
 }
 
 const GENRES = [
-  { name: "Hip-Hop", icon: Mic2 }, { name: "Drum & Bass", icon: Disc }, 
-  { name: "House", icon: Music }, { name: "Garage", icon: Radio },
-  { name: "Grime", icon: Zap }, { name: "Techno", icon: Headphones },
-  { name: "Trance", icon: Sparkles }, { name: "Dubstep", icon: Zap },
-  { name: "Pop", icon: Music }, { name: "Rock", icon: Mic2 }, 
-  { name: "Cinematic", icon: Sparkles }, { name: "Lo-Fi", icon: Headphones }
+  { name: "Drum & Bass", icon: Disc, color: "from-[#8B5CF6] to-[#06B6D4]" },
+  { name: "Techno", icon: Radio, color: "from-[#EC4899] to-[#8B5CF6]" },
+  { name: "House", icon: Music, color: "from-[#06B6D4] to-[#8B5CF6]" },
+  { name: "Hip-Hop", icon: Mic2, color: "from-[#F59E0B] to-[#EC4899]" },
+  { name: "Cinematic", icon: Sparkles, color: "from-[#8B5CF6] to-[#EC4899]" },
+  { name: "Lo-Fi", icon: Headphones, color: "from-[#06B6D4] to-[#EC4899]" },
 ];
 
 export default function StudioPage() {
   const [prompt, setPrompt] = useState("");
-  const [genre, setGenre] = useState("Hip-Hop");
+  const [genre, setGenre] = useState("Drum & Bass");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generation, setGeneration] = useState<Generation | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -76,10 +76,10 @@ export default function StudioPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0B0C10] text-white selection:bg-[#8B5CF6]/30">
+    <div className="flex h-screen overflow-hidden bg-[#0B0C10] text-white selection:bg-[#8B5CF6]/30 relative">
       <Sidebar />
       
-      <main className="flex-1 overflow-y-auto p-8 lg:p-12 relative scroll-smooth">
+      <main className="flex-1 overflow-y-auto p-8 lg:p-12 relative scroll-smooth z-10">
         <div className="max-w-5xl mx-auto pb-24">
           
           {/* Header */}
@@ -88,49 +88,38 @@ export default function StudioPage() {
               <h1 className="text-3xl font-bold font-sora tracking-tight">Welcome back, Creator.</h1>
               <p className="text-gray-400 mt-1">What are we producing today?</p>
             </div>
-            <div className="flex items-center gap-3 bg-white/5 px-5 py-2.5 rounded-full border border-white/10 hover:border-[#8B5CF6]/50 transition-colors cursor-pointer">
+            <div className="flex items-center gap-3 bg-white/5 px-5 py-2.5 rounded-full border border-white/10 hover:border-[#8B5CF6]/50 transition-colors cursor-pointer shadow-[0_0_15px_rgba(139,92,246,0.1)]">
               <span className="text-yellow-500 text-xl">🪙</span>
               <span className="font-bold font-sora">1,240</span>
             </div>
           </div>
 
-          {/* Hero Section with Visualizer */}
-          <div className="relative w-full h-[280px] rounded-3xl overflow-hidden mb-8 border border-white/10 bg-[#111827] flex items-center justify-between p-10 shadow-[0_0_40px_rgba(139,92,246,0.1)] group">
-            {/* Dark gradient fallback with neon glow */}
+          {/* Cyberpunk Hero Section */}
+          <div className="relative w-full h-[300px] rounded-3xl overflow-hidden mb-8 border border-white/10 bg-[#111827] flex items-center justify-between p-10 shadow-[0_0_40px_rgba(139,92,246,0.15)] group">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#4C1D95]/40 via-[#111827] to-[#0B0C10]"></div>
-            
-            {/* Subtle grid pattern overlay */}
-            <div className="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDQwIEwgNDAgNDAgTCA0MCAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')]"></div>
+            <div className="absolute inset-0 cyber-grid opacity-30"></div>
 
             <div className="relative z-10 max-w-lg">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="px-3 py-1 rounded-full bg-[#8B5CF6]/20 text-[#A78BFA] text-xs font-bold tracking-wider uppercase border border-[#8B5CF6]/30">AI Powered</span>
-                <span className="px-3 py-1 rounded-full bg-[#EC4899]/20 text-[#F472B6] text-xs font-bold tracking-wider uppercase border border-[#EC4899]/30">Studio Quality</span>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="px-3 py-1 rounded-full bg-[#8B5CF6]/20 text-[#A78BFA] text-xs font-bold tracking-wider uppercase border border-[#8B5CF6]/30 shadow-[0_0_10px_rgba(139,92,246,0.3)]">AI Powered</span>
+                <span className="px-3 py-1 rounded-full bg-[#EC4899]/20 text-[#F472B6] text-xs font-bold tracking-wider uppercase border border-[#EC4899]/30 shadow-[0_0_10px_rgba(236,72,153,0.3)]">Studio Quality</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold font-sora mb-3 text-white leading-tight">
+              <h2 className="text-5xl font-bold font-sora mb-4 text-white leading-tight">
                 Create. Explore. <br/><span className="text-neon-gradient">Evolve.</span>
               </h2>
               <p className="text-gray-400 text-sm md:text-base mb-6 max-w-sm">
-                Turn your ideas into powerful music with Klyraen's neural audio engine. Any genre, any style.
+                Turn your ideas into powerful music with Klyraen's neural audio engine.
               </p>
             </div>
 
-            {/* Glowing Ring Visualizer */}
+            {/* The Coded Visualizer Graphic */}
             <div className="relative z-10 hidden md:flex items-center gap-8 mr-4">
               <div className="flex items-end gap-1.5 h-24">
-                {[30, 60, 100, 40, 80, 50, 90, 20, 70, 45].map((h, i) => (
-                  <div 
-                    key={i} 
-                    className="w-2 rounded-t-sm bg-gradient-to-t from-[#8B5CF6] to-[#EC4899] opacity-80"
-                    style={{ 
-                      height: `${h}%`,
-                      animation: `pulse 1.5s ease-in-out infinite alternate`,
-                      animationDelay: `${i * 100}ms`
-                    }} 
-                  />
+                {[30, 60, 100, 40, 80, 50, 90, 20, 70, 45, 85].map((h, i) => (
+                  <div key={i} className="waveform-bar" style={{ height: `${h}%`, animationDelay: `${i * 100}ms` }} />
                 ))}
               </div>
-              <div className="neon-ring shadow-[0_0_50px_rgba(236,72,153,0.3)]">
+              <div className="neon-ring">
                 <div className="neon-ring-inner">
                   <Headphones className="w-10 h-10 text-white animate-pulse" />
                 </div>
@@ -139,7 +128,7 @@ export default function StudioPage() {
           </div>
 
           {/* Creation Card */}
-          <div className="bg-[#111827]/80 border border-white/10 p-6 md:p-8 rounded-3xl mb-12 relative overflow-hidden backdrop-blur-xl">
+          <div className="glass-panel p-6 md:p-8 rounded-3xl mb-12 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)]">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[#8B5CF6]/10 blur-[80px] pointer-events-none" />
 
             <p className="text-gray-300 mb-4 font-medium flex items-center gap-2">
@@ -169,6 +158,7 @@ export default function StudioPage() {
               </button>
             </div>
 
+            {/* Coded Genre Selector */}
             <div className="mt-8">
               <p className="text-sm text-gray-400 mb-4 font-medium">Choose a style</p>
               <div className="flex flex-wrap gap-3">
@@ -176,9 +166,9 @@ export default function StudioPage() {
                   <button
                     key={g.name}
                     onClick={() => setGenre(g.name)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
                       genre === g.name 
-                        ? "bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-[0_0_15px_rgba(139,92,246,0.4)] scale-105" 
+                        ? `bg-gradient-to-r ${g.color} text-white border-transparent shadow-[0_0_20px_rgba(139,92,246,0.3)] scale-105` 
                         : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20"
                     }`}
                   >
@@ -205,7 +195,7 @@ export default function StudioPage() {
             </div>
             
             {generation && (
-              <div className="bg-[#111827]/80 border border-white/10 p-5 rounded-2xl mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-l-4 border-l-[#EC4899] shadow-[0_0_30px_rgba(236,72,153,0.15)] relative overflow-hidden">
+              <div className="glass-panel p-5 rounded-2xl mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-l-4 border-l-[#EC4899] shadow-[0_0_30px_rgba(236,72,153,0.15)] relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#EC4899]/5 to-transparent pointer-events-none"></div>
                 <div className="flex items-center gap-4 relative z-10 w-full md:w-auto">
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] flex items-center justify-center shadow-lg shrink-0">
@@ -217,7 +207,6 @@ export default function StudioPage() {
                   </div>
                 </div>
                 
-                {/* Audio Player inside the Active Generation card */}
                 <div className="relative z-10 w-full md:w-auto flex items-center gap-4">
                   <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                     generation.status === "COMPLETED" ? "bg-green-500/20 text-green-400 border border-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.2)]" :
@@ -236,31 +225,32 @@ export default function StudioPage() {
               </div>
             )}
 
-            {/* Mock Past Creations */}
+            {/* Mock Past Creations - Styled like the mockup audio player */}
             <div className="space-y-3">
               {[
                 { title: "Neon Rush", genre: "Drum & Bass", bpm: "174 BPM", length: "3:28" },
                 { title: "Cosmic Waves", genre: "Trance", bpm: "138 BPM", length: "4:15" },
                 { title: "Midnight Drive", genre: "Synthwave", bpm: "110 BPM", length: "3:45" }
               ].map((track, i) => (
-                <div key={i} className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all cursor-pointer group">
+                <div key={i} className="flex items-center justify-between p-4 glass-panel rounded-xl hover:bg-white/5 transition-all cursor-pointer group">
                   <div className="flex items-center gap-5">
                     <button className="w-12 h-12 rounded-full bg-[#1F2937] group-hover:bg-gradient-to-r group-hover:from-[#8B5CF6] group-hover:to-[#EC4899] flex items-center justify-center transition-all duration-300 border border-white/10 group-hover:border-transparent group-hover:shadow-[0_0_15px_rgba(139,92,246,0.4)]">
                       <Play className="w-5 h-5 text-white ml-1" />
                     </button>
                     <div>
                       <h4 className="font-bold text-white text-lg group-hover:text-[#A78BFA] transition-colors">{track.title}</h4>
-                      <p className="text-xs text-gray-400 mt-0.5">{track.genre} • {track.bpm} • {track.length}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{track.genre} • {track.bpm}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
-                    {/* Animated CSS Waveform */}
                     <div className="hidden sm:flex items-end gap-1 h-8 opacity-40 group-hover:opacity-100 transition-opacity">
                       {[40, 70, 100, 60, 30, 80, 50, 90, 40, 60, 20, 50, 80, 30, 60].map((h, j) => (
                         <div key={j} className="w-1 bg-gradient-to-t from-[#8B5CF6] to-[#EC4899] rounded-t-sm" style={{ height: `${h}%` }} />
                       ))}
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
+                    <span className="text-xs text-gray-500">{track.length}</span>
+                    <button className="text-gray-500 hover:text-white transition-colors"><Heart className="w-5 h-5" /></button>
+                    <button className="text-gray-500 hover:text-white transition-colors"><MoreHorizontal className="w-5 h-5" /></button>
                   </div>
                 </div>
               ))}
