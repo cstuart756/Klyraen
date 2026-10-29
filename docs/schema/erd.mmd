@@ -1,0 +1,102 @@
+%% Klyraen target ERD (Phase 2 design; implemented in Phase 5)
+%% Render: https://mermaid.live or `npx @mermaid-js/mermaid-cli -i docs/schema/erd.mmd -o docs/schema/ERD.png`
+erDiagram
+  Tenant ||--o{ Membership : has
+  Tenant ||--o{ Generation : owns
+  Tenant ||--o{ Song : owns
+  Tenant ||--o{ Subscription : has
+  Tenant ||--o{ UsageRecord : accrues
+  Tenant ||--o{ ProductEvent : owns
+  Tenant ||--o{ BetaFeedback : owns
+  User ||--o{ Membership : belongs-to
+  User ||--o{ Generation : requests
+  User ||--o{ ProductEvent : emits
+  User ||--o{ BetaFeedback : submits
+  Generation ||--o| Song : produces
+  Song ||--o{ Asset : has
+
+  Tenant {
+    uuid id PK
+    string name
+    string slug UK
+    datetime createdAt
+  }
+  User {
+    uuid id PK
+    string clerkId UK
+    string email UK
+    datetime createdAt
+  }
+  Membership {
+    uuid id PK
+    uuid tenantId FK
+    uuid userId FK
+    string role
+  }
+  Generation {
+    uuid id PK
+    uuid tenantId FK
+    uuid userId FK
+    string prompt
+    json style
+    enum status
+    string provider
+    string model
+    string audioStorageKey
+    string errorMessage
+    datetime createdAt
+    datetime completedAt
+  }
+  Song {
+    uuid id PK
+    uuid tenantId FK
+    uuid generationId FK,UK
+    string title
+    string lyrics
+    int bpm
+    string musicalKey
+    int durationSec
+    datetime createdAt
+  }
+  Asset {
+    uuid id PK
+    uuid tenantId FK
+    uuid songId FK
+    string kind
+    string storageUrl
+    int bytes
+  }
+  Subscription {
+    uuid id PK
+    uuid tenantId FK,UK
+    string stripeCustomerId
+    string stripeSubscriptionId
+    string plan
+    string status
+  }
+  UsageRecord {
+    uuid id PK
+    uuid tenantId FK
+    string metric
+    int quantity
+    datetime recordedAt
+  }
+  ProductEvent {
+    uuid id PK
+    uuid tenantId FK
+    uuid userId FK
+    string event
+    uuid generationId FK
+    json metadata
+    datetime createdAt
+  }
+  BetaFeedback {
+    uuid id PK
+    uuid tenantId FK
+    uuid userId FK
+    uuid generationId FK
+    string type
+    int rating
+    string message
+    datetime createdAt
+  }
