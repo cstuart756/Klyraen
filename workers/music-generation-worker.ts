@@ -2,22 +2,16 @@ import 'dotenv/config';
 import { Worker } from "bullmq";
 import IORedis from "ioredis";
 import prisma from "../lib/prisma";
+import Replicate from "replicate";
 
 const connection = new IORedis(process.env.REDIS_URL || "redis://localhost:6379", {
   maxRetriesPerRequest: null,
 });
 
-// A list of different real audio tracks to mock the AI generation
-const mockAudioTracks = [
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
-];
+// Initialize Replicate
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
+});
 
 const worker = new Worker(
   "generation-queue", 
@@ -26,37 +20,57 @@ const worker = new Worker(
     console.log(`Processing generation: ${generationId}`);
 
     try {
+      // 1. Update status to PROCESSING
       const generation = await prisma.generation.update({
         where: { id: generationId },
         data: { status: "PROCESSING" },
       });
 
-      // Simulate AI generation time based on genre
-      const isComplex = generation.prompt.includes("Cinematic") || generation.prompt.includes("EDM");
-      const waitTime = isComplex ? 7000 : 5000; 
-      
-      console.log(`Generating ${generation.prompt.split(']')[0]}] audio (takes ${waitTime}ms)...`);
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
-      
-      // Randomly select one of the mock tracks to simulate different outputs
-      const randomIndex = Math.floor(Math.random() * mockAudioTracks.length);
-      const realAudioUrl = mockAudioTracks[randomIndex];
+      // 2. Extract the prompt (it includes the genre prefix from the API)
+      const prompt = generation.prompt;
+      console.log(`Sending to AI: ${prompt}`);
 
+      // 3. Call the Replicate API (Meta MusicGen)
+      // Note: MusicGen generates instrumentals. For vocals, you would use a different model like Suno (when they release their API).
+      const output = await replicate.run(
+        "meta/musicgen:671ac645ce5eb8a699dea9fb47b447830363e52ec03686d0829d1a5d22145b32",
+        {
+          input: {
+            prompt: prompt,
+            duration: 15, // Length of the track in seconds (keep low for testing to save money)
+            temperature: 1,
+            top_k: 250,
+            top_p: 0,
+            continuation: false,
+            output_format: "mp3",
+            normalization_strategy: "peak"
+          }
+        }
+      );
+
+      console.log(`AI Response:`, output);
+
+      // The output is typically an array containing the audio URL
+      const audioUrl = Array.isArray(output) ? output[0] : output;
+
+      if (!audioUrl) throw new Error("No audio URL returned from AI");
+
+      // 4. Update status to COMPLETED with the real audio URL
       await prisma.generation.update({
         where: { id: generationId },
         data: {
           status: "COMPLETED",
-          audioStorageKey: realAudioUrl,
+          audioStorageKey: audioUrl,
           completedAt: new Date(),
         },
       });
 
-      console.log(`Completed generation: ${generationId} (Track ${randomIndex + 1})`);
+      console.log(`Successfully completed generation: ${generationId}`);
     } catch (error) {
       console.error(`Failed generation: ${generationId}`, error);
       await prisma.generation.update({
         where: { id: generationId },
-        data: { status: "FAILED", errorMessage: "Provider API failed." },
+        data: { status: "FAILED", errorMessage: "AI Provider failed. Please try again." },
       });
     }
   },
