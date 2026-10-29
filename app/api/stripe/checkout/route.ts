@@ -10,12 +10,13 @@ export async function POST(req: Request) {
     // Get the tenant to check for an existing Stripe customer ID
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },
-      include: { subscription: true }
+      include: { subscriptions: true } // FIX 1: Plural, as defined in the schema
     });
 
     if (!tenant) throw new Error("Tenant not found");
 
-    let stripeCustomerId = tenant.subscription?.stripeCustomerId;
+    // FIX 2: Access the first subscription in the array
+    let stripeCustomerId = tenant.subscriptions?.[0]?.stripeCustomerId;
 
     // If no Stripe customer exists, create one
     if (!stripeCustomerId) {
