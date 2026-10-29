@@ -41,7 +41,7 @@ export function Sidebar() {
           <span className="font-medium text-sm">Settings</span>
         </Link>
         <div className="pt-4 flex items-center gap-3 px-4">
-          <UserButton afterSignOutUrl="/" />
+          <UserButton />
           <span className="text-sm font-medium text-gray-300">My Account</span>
         </div>
       </div>
