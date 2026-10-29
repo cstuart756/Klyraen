@@ -1,8 +1,13 @@
-// proxy.ts
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default clerkMiddleware({
-  publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+export default clerkMiddleware(async (auth, req) => {
+  // Use native path matching instead of the deprecated createRouteMatcher
+  const isProtectedRoute = req.nextUrl.pathname.startsWith('/studio') || 
+                           req.nextUrl.pathname.startsWith('/api');
+
+  if (isProtectedRoute) {
+    await auth.protect();
+  }
 });
 
 export const config = {
