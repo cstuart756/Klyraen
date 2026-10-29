@@ -94,20 +94,31 @@ export default function StudioPage() {
             </div>
           </div>
 
-          {/* Cyberpunk Hero Section */}
+          {/* Cyberpunk Hero Section WITH WATERMARK */}
           <div className="relative w-full h-[300px] rounded-3xl overflow-hidden mb-8 border border-white/10 bg-[#111827] flex items-center justify-between p-10 shadow-[0_0_40px_rgba(139,92,246,0.15)] group">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#4C1D95]/40 via-[#111827] to-[#0B0C10]"></div>
-            <div className="absolute inset-0 cyber-grid opacity-30"></div>
+            
+            {/* THE GIRL WITH HEADPHONES WATERMARK */}
+            <div 
+              className="absolute inset-0 z-0 opacity-40 mix-blend-screen bg-cover bg-[center_top_20%] bg-no-repeat"
+              style={{ 
+                // Swap this URL with '/girl-headphones.jpg' if you save the image in your public folder
+                backgroundImage: "url('https://images.unsplash.com/photo-1614890089396-6c9e5c413111?q=80&w=2070&auto=format&fit=crop')" 
+              }}
+            />
+            
+            {/* Dark Gradient Overlay */}
+            <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#0B0C10] via-[#0B0C10]/80 to-transparent"></div>
+            <div className="absolute inset-0 cyber-grid opacity-30 z-0"></div>
 
             <div className="relative z-10 max-w-lg">
               <div className="flex items-center gap-2 mb-4">
                 <span className="px-3 py-1 rounded-full bg-[#8B5CF6]/20 text-[#A78BFA] text-xs font-bold tracking-wider uppercase border border-[#8B5CF6]/30 shadow-[0_0_10px_rgba(139,92,246,0.3)]">AI Powered</span>
                 <span className="px-3 py-1 rounded-full bg-[#EC4899]/20 text-[#F472B6] text-xs font-bold tracking-wider uppercase border border-[#EC4899]/30 shadow-[0_0_10px_rgba(236,72,153,0.3)]">Studio Quality</span>
               </div>
-              <h2 className="text-5xl font-bold font-sora mb-4 text-white leading-tight">
+              <h2 className="text-5xl font-bold font-sora mb-4 text-white leading-tight drop-shadow-lg">
                 Create. Explore. <br/><span className="text-neon-gradient">Evolve.</span>
               </h2>
-              <p className="text-gray-400 text-sm md:text-base mb-6 max-w-sm">
+              <p className="text-gray-300 text-sm md:text-base mb-6 max-w-sm drop-shadow-md">
                 Turn your ideas into powerful music with Klyraen's neural audio engine.
               </p>
             </div>
