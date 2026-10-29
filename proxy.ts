@@ -1,11 +1,12 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 
 export default clerkMiddleware(async (auth, req) => {
-  // Only protect the UI routes. Let the API routes handle their own 401 JSON responses.
-  const isProtectedPage = req.nextUrl.pathname.startsWith('/studio') || 
-                          req.nextUrl.pathname.startsWith('/dashboard');
+  // Protect all app pages and API routes except the landing page, sign-in, and public assets
+  const isPublicRoute = req.nextUrl.pathname === '/' || 
+                        req.nextUrl.pathname.startsWith('/sign-in') || 
+                        req.nextUrl.pathname.startsWith('/sign-up');
 
-  if (isProtectedPage) {
+  if (!isPublicRoute) {
     await auth.protect();
   }
 });

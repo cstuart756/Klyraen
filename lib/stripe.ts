@@ -1,17 +1,6 @@
-import Stripe from "stripe";
+import Stripe from 'stripe';
 
-let stripe: Stripe | undefined;
-
-export function getStripe() {
-  if (stripe) {
-    return stripe;
-  }
-
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey) {
-    throw new Error("STRIPE_SECRET_KEY is not configured.");
-  }
-
-  stripe = new Stripe(secretKey);
-  return stripe;
-}
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock', {
+  apiVersion: '2024-10-28.acacia', // Use the latest API version
+  typescript: true,
+});

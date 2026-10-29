@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PenTool, Library, User, Settings, Zap } from "lucide-react";
+import { Home, PenTool, Library, User, Settings, Zap, CreditCard } from "lucide-react";
 import { UserButton, Show, SignInButton } from "@clerk/nextjs";
 
 export function Sidebar() {
@@ -11,6 +11,7 @@ export function Sidebar() {
     { name: "Home", href: "/dashboard", icon: Home },
     { name: "Create", href: "/studio", icon: PenTool },
     { name: "Library", href: "/library", icon: Library },
+    { name: "Upgrade", href: "/pricing", icon: CreditCard },
   ];
 
   return (
@@ -57,15 +58,6 @@ export function Sidebar() {
             <div className="flex items-center gap-3 px-4 py-2">
               <UserButton appearance={{ elements: { avatarBox: "w-8 h-8" } }} />
               <span className="text-sm font-medium text-gray-300">My Account</span>
-            </div>
-          </Show>
-          <Show when="signed-out">
-            <div className="px-4">
-              <SignInButton mode="modal">
-                <button className="w-full py-2.5 bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] hover:opacity-90 text-white font-bold rounded-lg transition-all text-sm">
-                  Sign In / Sign Up
-                </button>
-              </SignInButton>
             </div>
           </Show>
         </div>
