@@ -1,18 +1,12 @@
-import 'dotenv/config'; // <--- ADD THIS LINE AT THE VERY TOP
+import 'dotenv/config';
 import { Worker } from "bullmq";
 import IORedis from "ioredis";
 import prisma from "../lib/prisma";
-
-// ... rest of your code ...
-
-console.log("Starting the Klyraen worker..."); // Debug line to prove it's running
 
 const connection = new IORedis(process.env.REDIS_URL || "redis://localhost:6379", {
   maxRetriesPerRequest: null,
 });
 
-// We are hardcoding the string "generation-queue" right here.
-// This guarantees BullMQ receives a valid string.
 const worker = new Worker(
   "generation-queue", 
   async (job) => {
@@ -20,13 +14,18 @@ const worker = new Worker(
     console.log(`Processing generation: ${generationId}`);
 
     try {
-      await prisma.generation.update({
+      const generation = await prisma.generation.update({
         where: { id: generationId },
         data: { status: "PROCESSING" },
       });
 
-      // Simulate AI generation (5 seconds)
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      // Simulate AI generation time based on genre complexity
+      const isComplex = generation.prompt.includes("Cinematic") || generation.prompt.includes("EDM");
+      const waitTime = isComplex ? 7000 : 5000; 
+      
+      console.log(`Generating ${generation.prompt.split(']')[0]}] audio (takes ${waitTime}ms)...`);
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+      
       const mockStorageKey = `audio-${generationId}`;
 
       await prisma.generation.update({
