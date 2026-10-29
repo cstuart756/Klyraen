@@ -27,13 +27,13 @@ const worker = new Worker(
       const prompt = generation.prompt;
       console.log(`Sending to AI: ${prompt}`);
 
-      // THE FIX: Using the correct and complete version hash
-      const output = await replicate.run(
+      // Cast output to 'any' to prevent TypeScript build errors
+      const output: any = await replicate.run(
         "meta/musicgen:671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb",
         {
           input: {
             prompt: prompt,
-            model_version: "stereo-melody-large", // This is the recommended model
+            model_version: "stereo-melody-large",
             duration: 15,
             output_format: "mp3",
             normalization_strategy: "loudness",
@@ -43,8 +43,8 @@ const worker = new Worker(
 
       console.log(`AI Response:`, output);
 
-      // The output is a URL string
-      const audioUrl = typeof output === 'string' ? output : output[0];
+      // Safely extract the URL
+      const audioUrl = typeof output === 'string' ? output : (Array.isArray(output) ? output[0] : output.url);
 
       if (!audioUrl) throw new Error("No audio URL returned from AI");
 
