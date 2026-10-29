@@ -1,0 +1,195 @@
+openapi: 3.1.0
+info:
+  title: Klyraen API
+  version: 0.1.0
+  description: API for the Klyraen AI music generation platform.
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: https://klyraen-staging.herokuapp.com
+    description: Staging
+
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /api/generate:
+    post:
+      summary: Submit a new song generation job
+      security:
+        - ClerkAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prompt]
+              properties:
+                prompt:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+                  description: The text description of the song.
+      responses:
+        '201':
+          description: Job successfully queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Generation'
+        '400':
+          description: Invalid prompt
+        '401':
+          description: Unauthenticated
+
+  /api/generations/{id}:
+    get:
+      summary: Get a single generation by ID
+      security:
+        - ClerkAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Generation found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Generation'
+        '404':
+          description: Generation not found or not owned by user
+
+  /api/generations/{id}/audio:
+    get:
+      summary: Get the audio URL for a completed generation
+      security:
+        - ClerkAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Audio URL returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+        '404':
+          description: Audio not ready or not found
+
+  /api/events:
+    post:
+      summary: Log a product analytics event
+      security:
+        - ClerkAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, event]
+              properties:
+                userId:
+                  type: string
+                event:
+                  type: string
+                generationId:
+                  type: string
+                metadata:
+                  type: object
+      responses:
+        '201':
+          description: Event logged
+
+  /api/feedback:
+    post:
+      summary: Submit beta feedback
+      security:
+        - ClerkAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, type]
+              properties:
+                userId:
+                  type: string
+                type:
+                  type: string
+                generationId:
+                  type: string
+                rating:
+                  type: integer
+                message:
+                  type: string
+      responses:
+        '201':
+          description: Feedback submitted
+
+components:
+  securitySchemes:
+    ClerkAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Clerk session token
+
+  schemas:
+    Generation:
+      type: object
+      properties:
+        id:
+          type: string
+          example: clx123...
+        tenantId:
+          type: string
+        userId:
+          type: string
+        prompt:
+          type: string
+        status:
+          type: string
+          enum: [QUEUED, PROCESSING, COMPLETED, FAILED]
+        provider:
+          type: string
+          example: mock
+        audioStorageKey:
+          type: string
+          nullable: true
+        errorMessage:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
