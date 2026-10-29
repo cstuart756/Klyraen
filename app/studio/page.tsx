@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
-import { Play, Sparkles, Music, ChevronRight, Zap, Headphones } from "lucide-react";
+import { Play, Sparkles, Music, ChevronRight, Zap, Headphones, Disc, Radio, Mic2 } from "lucide-react";
 
 type GenerationStatus = "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 
@@ -16,9 +16,12 @@ interface Generation {
 }
 
 const GENRES = [
-  "Hip-Hop", "Drum & Bass", "House", "Garage", "Grime", 
-  "Techno", "Trance", "Dubstep", "Pop", "Rock", 
-  "Cinematic", "Lo-Fi", "Ambient", "R&B"
+  { name: "Hip-Hop", icon: Mic2 }, { name: "Drum & Bass", icon: Disc }, 
+  { name: "House", icon: Music }, { name: "Garage", icon: Radio },
+  { name: "Grime", icon: Zap }, { name: "Techno", icon: Headphones },
+  { name: "Trance", icon: Sparkles }, { name: "Dubstep", icon: Zap },
+  { name: "Pop", icon: Music }, { name: "Rock", icon: Mic2 }, 
+  { name: "Cinematic", icon: Sparkles }, { name: "Lo-Fi", icon: Headphones }
 ];
 
 export default function StudioPage() {
@@ -91,9 +94,8 @@ export default function StudioPage() {
             </div>
           </div>
 
-          {/* Cyberpunk Hero Section */}
+          {/* Hero Section with Visualizer */}
           <div className="relative w-full h-[280px] rounded-3xl overflow-hidden mb-8 border border-white/10 bg-[#111827] flex items-center justify-between p-10 shadow-[0_0_40px_rgba(139,92,246,0.1)] group">
-            
             {/* Dark gradient fallback with neon glow */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#4C1D95]/40 via-[#111827] to-[#0B0C10]"></div>
             
@@ -113,10 +115,10 @@ export default function StudioPage() {
               </p>
             </div>
 
-            {/* Right side visualizer (Glowing Ring + CSS Waveform) */}
+            {/* Glowing Ring Visualizer */}
             <div className="relative z-10 hidden md:flex items-center gap-8 mr-4">
               <div className="flex items-end gap-1.5 h-24">
-                {[30, 60, 100, 40, 80, 50, 90, 20].map((h, i) => (
+                {[30, 60, 100, 40, 80, 50, 90, 20, 70, 45].map((h, i) => (
                   <div 
                     key={i} 
                     className="w-2 rounded-t-sm bg-gradient-to-t from-[#8B5CF6] to-[#EC4899] opacity-80"
@@ -169,18 +171,19 @@ export default function StudioPage() {
 
             <div className="mt-8">
               <p className="text-sm text-gray-400 mb-4 font-medium">Choose a style</p>
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-wrap gap-3">
                 {GENRES.map((g) => (
                   <button
-                    key={g}
-                    onClick={() => setGenre(g)}
-                    className={`px-5 py-2 rounded-full text-sm font-semibold transition-all border ${
-                      genre === g 
+                    key={g.name}
+                    onClick={() => setGenre(g.name)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border ${
+                      genre === g.name 
                         ? "bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-[0_0_15px_rgba(139,92,246,0.4)] scale-105" 
                         : "bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20"
                     }`}
                   >
-                    {g}
+                    <g.icon className={`w-4 h-4 ${genre === g.name ? 'text-white' : 'text-gray-500'}`} />
+                    {g.name}
                   </button>
                 ))}
               </div>
@@ -202,18 +205,20 @@ export default function StudioPage() {
             </div>
             
             {generation && (
-              <div className="bg-[#111827]/80 border border-white/10 p-5 rounded-2xl mb-6 flex items-center justify-between border-l-4 border-l-[#EC4899] shadow-[0_0_30px_rgba(236,72,153,0.15)] relative overflow-hidden">
+              <div className="bg-[#111827]/80 border border-white/10 p-5 rounded-2xl mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-l-4 border-l-[#EC4899] shadow-[0_0_30px_rgba(236,72,153,0.15)] relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#EC4899]/5 to-transparent pointer-events-none"></div>
-                <div className="flex items-center gap-4 relative z-10">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] flex items-center justify-center shadow-lg">
+                <div className="flex items-center gap-4 relative z-10 w-full md:w-auto">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] flex items-center justify-center shadow-lg shrink-0">
                     <Music className="text-white w-7 h-7" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-lg text-white mb-0.5">{genre} Generation</h3>
-                    <p className="text-sm text-gray-400 truncate max-w-md">{prompt}</p>
+                    <p className="text-sm text-gray-400 truncate">{prompt}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 relative z-10">
+                
+                {/* Audio Player inside the Active Generation card */}
+                <div className="relative z-10 w-full md:w-auto flex items-center gap-4">
                   <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                     generation.status === "COMPLETED" ? "bg-green-500/20 text-green-400 border border-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.2)]" :
                     generation.status === "FAILED" ? "bg-red-500/20 text-red-400 border border-red-500/30" :
@@ -221,6 +226,12 @@ export default function StudioPage() {
                   }`}>
                     {generation.status}
                   </span>
+
+                  {generation.status === "COMPLETED" && generation.audioStorageKey && (
+                    <audio controls className="h-10 rounded-full w-full md:w-64" autoPlay>
+                      <source src={generation.audioStorageKey} type="audio/mpeg" />
+                    </audio>
+                  )}
                 </div>
               </div>
             )}
@@ -243,7 +254,7 @@ export default function StudioPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
-                    {/* CSS Waveform Simulation */}
+                    {/* Animated CSS Waveform */}
                     <div className="hidden sm:flex items-end gap-1 h-8 opacity-40 group-hover:opacity-100 transition-opacity">
                       {[40, 70, 100, 60, 30, 80, 50, 90, 40, 60, 20, 50, 80, 30, 60].map((h, j) => (
                         <div key={j} className="w-1 bg-gradient-to-t from-[#8B5CF6] to-[#EC4899] rounded-t-sm" style={{ height: `${h}%` }} />

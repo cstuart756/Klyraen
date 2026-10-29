@@ -19,20 +19,21 @@ const worker = new Worker(
         data: { status: "PROCESSING" },
       });
 
-      // Simulate AI generation time based on genre complexity
+      // Simulate AI generation time
       const isComplex = generation.prompt.includes("Cinematic") || generation.prompt.includes("EDM");
       const waitTime = isComplex ? 7000 : 5000; 
       
       console.log(`Generating ${generation.prompt.split(']')[0]}] audio (takes ${waitTime}ms)...`);
       await new Promise((resolve) => setTimeout(resolve, waitTime));
       
-      const mockStorageKey = `audio-${generationId}`;
+      // USE A REAL PUBLIC MP3 URL FOR TESTING
+      const realAudioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
 
       await prisma.generation.update({
         where: { id: generationId },
         data: {
           status: "COMPLETED",
-          audioStorageKey: mockStorageKey,
+          audioStorageKey: realAudioUrl, // Save the real URL
           completedAt: new Date(),
         },
       });
