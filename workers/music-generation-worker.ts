@@ -27,7 +27,6 @@ const worker = new Worker(
       const prompt = generation.prompt;
       console.log(`Sending to AI: ${prompt}`);
 
-      // Cast output to 'any' to prevent TypeScript build errors
       const output: any = await replicate.run(
         "meta/musicgen:671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb",
         {
@@ -41,9 +40,6 @@ const worker = new Worker(
         }
       );
 
-      console.log(`AI Response:`, output);
-
-      // Safely extract the URL
       const audioUrl = typeof output === 'string' ? output : (Array.isArray(output) ? output[0] : output.url);
 
       if (!audioUrl) throw new Error("No audio URL returned from AI");
@@ -58,11 +54,20 @@ const worker = new Worker(
       });
 
       console.log(`Successfully completed generation: ${generationId}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Failed generation: ${generationId}`, error);
+      
+      // Catch the 402 Payment Required error specifically
+      let friendlyError = "AI generation failed. Please try again.";
+      if (error.message && error.message.includes("402")) {
+        friendlyError = "AI provider is out of credits. Please add billing info to Replicate.";
+      } else if (error.message && error.message.includes("422")) {
+        friendlyError = "Invalid prompt or model version.";
+      }
+
       await prisma.generation.update({
         where: { id: generationId },
-        data: { status: "FAILED", errorMessage: "AI Provider failed. Please try again." },
+        data: { status: "FAILED", errorMessage: friendlyError },
       });
     }
   },
