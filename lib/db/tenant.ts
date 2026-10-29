@@ -1,35 +1,62 @@
-import { auth } from "@clerk/nextjs/server";
-import { prisma } from "../prisma"; // Adjust this path if your Prisma client is exported from a different file (e.g., "@/lib/prisma")
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { prisma } from "../prisma";
 
-/**
- * Enforces tenant isolation. Every API route that touches tenant data
- * MUST call this first.
- */
+export class TenantAuthError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "TenantAuthError";
+    this.status = status;
+  }
+}
+
 export async function requireTenantId(): Promise<string> {
   const { userId, orgId } = await auth();
   
   if (!userId) {
-    throw new Response("Unauthenticated", { status: 401 });
+    throw new TenantAuthError("Unauthenticated", 401);
   }
 
-  // For MVP, we assume every user has an active Clerk Organization 
-  // that maps to their Klyraen Tenant ID.
-  if (!orgId) {
-    throw new Response("No active workspace. Please select or create one.", { status: 403 });
+  // 1. Ensure User exists in our database (self-healing)
+  let user = await prisma.user.findUnique({ where: { clerkId: userId } });
+  
+  if (!user) {
+    const clerkUser = await currentUser();
+    const email = clerkUser?.emailAddresses[0]?.emailAddress || `${userId}@placeholder.com`;
+    
+    user = await prisma.user.create({
+      data: {
+        clerkId: userId,
+        email: email,
+      }
+    });
   }
 
-  // Verify the user actually has a membership in this tenant
-  const membership = await prisma.membership.findFirst({
-    where: {
-      tenantId: orgId,
-      user: { clerkId: userId },
-    },
-    select: { tenantId: true },
+  // 2. If the user is in a Clerk Organization, use it!
+  if (orgId) {
+    const membership = await prisma.membership.findFirst({
+      where: { tenantId: orgId, user: { clerkId: userId } },
+      select: { tenantId: true },
+    });
+    if (membership) return membership.tenantId;
+  }
+
+  // 3. Otherwise, auto-provision a default workspace for them
+  let personalTenant = await prisma.tenant.findFirst({
+    where: { memberships: { some: { userId: user.id, role: 'owner' } } }
   });
 
-  if (!membership) {
-    throw new Response("Forbidden: You do not have access to this workspace", { status: 403 });
+  if (!personalTenant) {
+    personalTenant = await prisma.tenant.create({
+      data: {
+        name: 'Personal Workspace',
+        slug: `workspace-${userId.substring(0, 8)}`,
+        memberships: {
+          create: { userId: user.id, role: 'owner' }
+        }
+      }
+    });
   }
 
-  return membership.tenantId;
+  return personalTenant.id;
 }

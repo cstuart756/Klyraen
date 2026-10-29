@@ -1,182 +1,167 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import Link from "next/link";
+import { useState } from "react";
+import { UserButton, Show, SignInButton } from "@clerk/nextjs";
 
-type Generation = {
+type GenerationStatus = "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+
+interface Generation {
   id: string;
+  status: GenerationStatus;
   prompt: string;
-  status: "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
-  errorMessage?: string | null;
-};
-
-const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  audioStorageKey?: string;
+  errorMessage?: string;
+}
 
 export default function StudioPage() {
   const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
   const [generation, setGeneration] = useState<Generation | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPreviewing, setIsPreviewing] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!generation || demoMode || generation.status === "COMPLETED" || generation.status === "FAILED") {
+  const handleGenerate = async () => {
+    if (prompt.length < 10) {
+      setError("Prompt must be at least 10 characters.");
       return;
     }
 
-    const poll = window.setInterval(async () => {
-      const response = await fetch(`/api/generations/${generation.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setGeneration(data.generation);
+    setIsGenerating(true);
+    setError(null);
+    setGeneration(null);
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        let errorMessage = "Failed to start generation";
+        try {
+          const data = JSON.parse(text);
+          errorMessage = data.error || errorMessage;
+        } catch (e) {
+          errorMessage = `Server error (${res.status})`;
+        }
+        throw new Error(errorMessage);
       }
-    }, 2500);
 
-    return () => window.clearInterval(poll);
-  }, [generation]);
-
-  async function createGeneration(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const cleanPrompt = prompt.trim();
-    if (cleanPrompt.length < 3) {
-      setError("Give your track a little more direction.");
-      return;
+      const newGeneration = await res.json();
+      setGeneration(newGeneration);
+      pollGenerationStatus(newGeneration.id);
+      
+    } catch (err: any) {
+      setError(err.message);
+      setIsGenerating(false);
     }
+  };
 
-    setError("");
-    setIsSubmitting(true);
+  const pollGenerationStatus = async (id: string) => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/generations/${id}`);
+        if (!res.ok) {
+          if (res.status >= 500) {
+             clearInterval(interval);
+             setIsGenerating(false);
+             setError("Server error while checking status.");
+             return;
+          }
+          throw new Error("Failed to check status");
+        }
+        
+        const text = await res.text();
+        let data;
+        try {
+           data = JSON.parse(text);
+        } catch (e) {
+           clearInterval(interval);
+           setIsGenerating(false);
+           setError("Received invalid data from server.");
+           return;
+        }
 
-    if (demoMode) {
-      const demoGeneration = {
-        id: `demo-${Date.now()}`,
-        prompt: cleanPrompt,
-        status: "PROCESSING" as const,
-      };
-      setGeneration(demoGeneration);
-      window.setTimeout(() => {
-        setGeneration({ ...demoGeneration, status: "COMPLETED" });
-        setIsSubmitting(false);
-      }, 1800);
-      return;
-    }
+        setGeneration(data);
 
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: cleanPrompt }),
-    });
-    const data = await response.json();
-    setIsSubmitting(false);
-
-    if (!response.ok) {
-      setError(data.error ?? "The studio could not queue that track.");
-      return;
-    }
-
-    setGeneration({ id: data.generationId, prompt: cleanPrompt, status: data.status });
-  }
-
-  function playDemoPreview() {
-    const AudioContextClass = window.AudioContext ??
-      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextClass || isPreviewing) {
-      return;
-    }
-
-    const context = new AudioContextClass();
-    const now = context.currentTime;
-    [220, 277.18, 329.63, 440].forEach((frequency, index) => {
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-      oscillator.type = "sine";
-      oscillator.frequency.value = frequency;
-      gain.gain.setValueAtTime(0, now + index * 0.12);
-      gain.gain.linearRampToValueAtTime(0.08, now + index * 0.12 + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 2.2);
-      oscillator.connect(gain).connect(context.destination);
-      oscillator.start(now + index * 0.12);
-      oscillator.stop(now + 2.3);
-    });
-    setIsPreviewing(true);
-    window.setTimeout(() => {
-      setIsPreviewing(false);
-      void context.close();
-    }, 2400);
-  }
+        if (data.status === "COMPLETED") {
+          clearInterval(interval);
+          setIsGenerating(false);
+        } else if (data.status === "FAILED") {
+          clearInterval(interval);
+          setIsGenerating(false);
+          setError(data.errorMessage || "Generation failed.");
+        }
+      } catch (err) {
+        clearInterval(interval);
+        setIsGenerating(false);
+        setError("Lost connection to the server.");
+      }
+    }, 2000);
+  };
 
   return (
-    <main className="studio-shell">
-      <div className="beta-kicker">KLYRAEN / STUDIO</div>
-      <div className="studio-layout">
-        <section className="studio-card studio-create-card">
-          <p className="eyebrow">Create / 01</p>
-          <h1>Give the feeling a shape.</h1>
-          <form onSubmit={createGeneration}>
-            <label htmlFor="prompt">What should we make?</label>
-            <textarea
-              id="prompt"
-              value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
-              placeholder="A late-night electronic track with glassy percussion and a warm, rising chorus..."
-              maxLength={2000}
-              rows={6}
-            />
-            <div className="prompt-footer">
-              <span>{prompt.length}/2000</span>
-              <button className="primary-action" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Preparing..." : "Generate track ->"}
-              </button>
-            </div>
-          </form>
-          {error && (
-            <p className="form-error">
-              {error}
-              {error === "Authentication is required." && (
-                <Link className="inline-link" href="/sign-in">
-                  Sign in to continue.
-                </Link>
-              )}
-            </p>
-          )}
-        </section>
-
-        <aside className="studio-card result-card">
-          <p className="eyebrow">Result / 02</p>
-          {!generation && (
-            <div className="empty-result">
-              <span className="result-mark">+</span>
-              <p>Your first result will appear here.</p>
-            </div>
-          )}
-          {generation && (
-            <div className="generation-result">
-              {generation.status === "COMPLETED" && demoMode ? (
-                <button
-                  className="status-chip status-completed status-button"
-                  type="button"
-                  onClick={playDemoPreview}
-                >
-                  {isPreviewing ? "Playing preview" : "Ready to listen"}
-                </button>
-              ) : (
-                <div className={`status-chip status-${generation.status.toLowerCase()}`}>
-                  {generation.status === "COMPLETED" ? "Ready to listen" : generation.status.toLowerCase()}
-                </div>
-              )}
-              <h2>{generation.prompt}</h2>
-              {generation.status === "PROCESSING" && <div className="progress-line" />}
-              {generation.status === "COMPLETED" && (
-                demoMode ? (
-                  <div className="demo-audio">Demo preview ready when provider is connected.</div>
-                ) : (
-                  <audio controls src={`/api/generations/${generation.id}/audio`} />
-                )
-              )}
-              {generation.status === "FAILED" && <p className="form-error">{generation.errorMessage}</p>}
-            </div>
-          )}
-        </aside>
+    <div className="max-w-2xl mx-auto p-8 mt-12 relative">
+      <div className="absolute top-4 right-4">
+        <Show when="signed-in">
+          <UserButton />
+        </Show>
+        <Show when="signed-out">
+          <SignInButton mode="modal" />
+        </Show>
       </div>
-    </main>
+
+      <h1 className="text-3xl font-bold mb-8">Klyraen Studio</h1>
+
+      {error && (
+        <div className="p-4 mb-6 bg-red-100 text-red-700 rounded-md border border-red-200">
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-4">
+        <textarea
+          className="w-full h-32 p-4 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          placeholder="Describe your song (e.g., A neon cyberpunk track with heavy synth bass and female vocals...)"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          disabled={isGenerating}
+        />
+
+        <button
+          onClick={handleGenerate}
+          disabled={isGenerating || prompt.length < 10}
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg disabled:opacity-50 transition-colors"
+        >
+          {isGenerating ? "Generating..." : "Generate Song"}
+        </button>
+      </div>
+
+      {generation && (
+        <div className="mt-12 p-6 border rounded-xl bg-gray-50">
+          <h2 className="text-lg font-semibold mb-2">Generation Status</h2>
+          <div className="flex items-center space-x-2 mb-4">
+            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+              generation.status === "COMPLETED" ? "bg-green-100 text-green-800" :
+              generation.status === "FAILED" ? "bg-red-100 text-red-800" :
+              "bg-yellow-100 text-yellow-800"
+            }`}>
+              {generation.status}
+            </span>
+          </div>
+
+          {generation.status === "COMPLETED" && generation.audioStorageKey && (
+            <div className="mt-4">
+              <p className="text-sm text-gray-500 mb-2">Audio ready!</p>
+              <audio controls className="w-full">
+                <source src={`https://mock-audio-storage.klyraen.com/${generation.audioStorageKey}.mp3`} type="audio/mpeg" />
+                Your browser does not support the audio element.
+              </audio>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
