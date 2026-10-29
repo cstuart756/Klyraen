@@ -4,7 +4,7 @@ import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#0B0C10] text-white overflow-hidden selection:bg-[#8B5CF6]/30 relative">
+    <div className="min-h-screen bg-[#0B0C10] text-white overflow-x-hidden selection:bg-[#8B5CF6]/30 relative">
       
       {/* BACKGROUND IMAGE */}
       <div 
@@ -62,7 +62,7 @@ export default function Home() {
             Turn your ideas into powerful music with Klyraen's neural audio engine. Generate vocals, lyrics, and full arrangements in seconds.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
             <Show when="signed-in">
               <Link href="/studio" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] hover:opacity-90 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-[0_0_30px_rgba(139,92,246,0.6)]">
                 Start Creating <ArrowRight className="w-5 h-5" />
@@ -75,6 +75,27 @@ export default function Home() {
                 </button>
               </SignInButton>
             </Show>
+          </div>
+
+          {/* Hero Visualizer Mockup */}
+          <div className="max-w-4xl mx-auto relative">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C10] via-transparent to-transparent z-10" />
+              <div className="glass-panel p-6 rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(139,92,246,0.15)] flex items-center gap-6">
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] flex items-center justify-center shrink-0">
+                      <Music className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="flex-1">
+                      <div className="flex justify-between items-center mb-2">
+                          <h4 className="font-bold text-lg">Neon Rush (Demo)</h4>
+                          <span className="text-xs text-gray-400">Drum & Bass • 174 BPM</span>
+                      </div>
+                      <div className="flex items-center gap-1 h-8 opacity-80">
+                          {[40, 70, 100, 60, 30, 80, 50, 90, 40, 60, 20, 50, 80, 30, 60, 90, 40, 70, 100, 60, 30, 80, 50, 90].map((h, i) => (
+                              <div key={i} className="flex-1 bg-gradient-to-t from-[#8B5CF6] to-[#EC4899] rounded-t-sm" style={{ height: `${h}%` }} />
+                          ))}
+                      </div>
+                  </div>
+              </div>
           </div>
         </div>
       </main>
