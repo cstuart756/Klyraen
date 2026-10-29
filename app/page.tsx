@@ -11,7 +11,7 @@ export default function Home() {
         className="absolute inset-0 z-0 opacity-40 mix-blend-screen bg-cover bg-[center_top_20%] bg-no-repeat"
         style={{ 
           // Points to the local file in your public folder
-          backgroundImage: "url('/cyberpunk-girl.jpg')" 
+          backgroundImage: "url('/cyberpunk-girl.jpg.png')" 
         }}
       />
       
