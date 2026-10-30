@@ -63,7 +63,9 @@ sequenceDiagram
 
     User->>NextJS: GET /api/generations/[id] (Polling)
     NextJS-->>User: Returns URL
- 🎨 UI/UX & Design Documentation
+```
+
+## 🎨 UI/UX & Design Documentation
 
 Klyraen uses a custom dark-mode design system based on the "Cyberpunk / Neon" aesthetic, featuring glassmorphism, gradient text, and CSS-based audio visualizers.
 Wireframes (Phase 2)
